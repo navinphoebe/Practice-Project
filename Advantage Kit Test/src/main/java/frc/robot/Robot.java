@@ -27,6 +27,8 @@ public class Robot extends LoggedRobot {
 
   private RobotContainer m_robotContainer;
 
+  private Vision m_vision;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -72,7 +74,7 @@ public class Robot extends LoggedRobot {
         setUseTiming(false); // Run as fast as possible
         // C:\Users\Phoebe\Desktop\AdvantageKit-Kitbot-Example\logs\Log_24-08-20_18-30-31.wpilog
         // String logPath = LogFileUtil.findReplayLog();
-        String logPath = "C:\\Users\\Phoebe\\Desktop\\Advantage Kit Test\\logs\\Log_24-08-21_12-41-40.wpilog";
+        String logPath = "C:\\Users\\Phoebe\\Desktop\\Practice-Project\\Advantage Kit Test\\logs\\Log_24-08-28_10-10-53.wpilog";
         Logger.setReplaySource(new WPILOGReader(logPath));
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
         break;
@@ -84,6 +86,7 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
     m_robotContainer = new RobotContainer();
+    m_vision = new Vision(m_robotContainer.m_drivetrain);
   }
 
   /**
@@ -104,7 +107,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.m_drivetrain.setDisabled();
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -156,5 +161,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    m_vision.periodic();
+  }
 }

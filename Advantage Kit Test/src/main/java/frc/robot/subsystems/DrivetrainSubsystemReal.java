@@ -301,6 +301,7 @@ public class DrivetrainSubsystemReal extends SubsystemBase implements Drivetrain
     return m_kinematics.toChassisSpeeds(_moduleStates);
   }
 
+  @Override
   @AutoLogOutput
   public Pose2d getPose() {
     return _odometryFromHardware.getPoseMeters();

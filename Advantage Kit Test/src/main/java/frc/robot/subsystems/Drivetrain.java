@@ -21,4 +21,6 @@ public interface Drivetrain extends Subsystem {
   public void setDisabled();
 
   public double getMaxVelocity();
+
+  public Pose2d getPose();
 }
