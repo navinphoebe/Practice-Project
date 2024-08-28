@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -117,7 +118,12 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_robotContainer.m_drivetrain.resetPose(new Pose2d(1.357, 5.554, new Rotation2d()));
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue){
+      m_robotContainer.m_drivetrain.resetPose(new Pose2d(1.357, 5.554, new Rotation2d(Math.PI)));
+    } else {
+      m_robotContainer.m_drivetrain.resetPose(new Pose2d(15.16, 5.554, new Rotation2d()));
+    }
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)

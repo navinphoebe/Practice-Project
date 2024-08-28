@@ -7,6 +7,7 @@ package frc.robot;
 import java.io.IOException;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.estimation.TargetModel;
@@ -77,6 +78,21 @@ public class Vision {
 
         // Get the built-in Field2d used by this VisionSystemSim
         visionSim.getDebugField();
+    }
+
+    @AutoLogOutput
+    public Pose3d getPoseApril() {
+        return robotPoseApril;
+    }
+
+    @AutoLogOutput
+    public int getAutoTag() {
+        var result = cameraSim.getCamera().getLatestResult();
+        if (result == null) {
+        return 0;
+        }
+        return result.getBestTarget().getFiducialId();
+        
     }
 
     public void periodic() {
