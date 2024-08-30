@@ -25,6 +25,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.swervedrivespecialties.swervelib.MechanicalConfiguration;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -74,6 +75,13 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
   public SwerveModuleState frontRight;
   public SwerveModuleState backLeft;
   public SwerveModuleState backRight;
+  public static final MechanicalConfiguration MK4I_L2_PLUS = new MechanicalConfiguration(
+    0.10033,
+    (16.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0),
+    true,
+    (16.0 / 50.0) * (10.0 / 60.0),
+    false
+);
   private final StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
     .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
 

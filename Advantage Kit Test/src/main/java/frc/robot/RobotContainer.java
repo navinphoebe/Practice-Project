@@ -8,12 +8,16 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DrivetrainDefaultCommand;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.MoveArmToPositionInOneSecond;
+import frc.robot.commands.SetMotorSpeed;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveIO;
 import frc.robot.subsystems.DriveSimIO;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.DrivetrainSubsystemReal;
 import frc.robot.subsystems.DrivetrainSubsystemSim;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.FlywheelSubystemSim;
 
 import java.util.List;
 
@@ -47,6 +51,8 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   public Drivetrain m_drivetrain;
+  public Arm m_arm = new Arm();
+  public FlywheelSubystemSim m_flywheel = new FlywheelSubystemSim();
   // public final DrivetrainSwerveDrive m_swerveDrive = new DrivetrainSwerveDrive();
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -82,11 +88,14 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     m_drivetrain.setDefaultCommand(getSwerveDriveCommand());
-    
+   
     m_chooser.setDefaultOption("Follow Path", getFollowTestPathCommand());
     m_chooser.addOption("On the Fly", getOnTheFlyPathComamand());
     m_chooser.addOption("Navagation Grid", getNavigationGridDemoPathCommand());
     SmartDashboard.putData(m_chooser);
+    m_driverController.pov(0).onTrue(new MoveArmToPositionInOneSecond(m_arm, -100));
+    m_driverController.pov(180).onTrue(new MoveArmToPositionInOneSecond(m_arm, -80));
+    m_driverController.button(1).onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
   }
 
   /**
@@ -111,7 +120,7 @@ public class RobotContainer {
 
   public Command getFollowTestPathCommand() {
     // An example command will be run in autonomous
-    PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory("NewPath");
+    PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory("NewPath.1");
     //PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
     return AutoBuilder.followPath(path);
   }

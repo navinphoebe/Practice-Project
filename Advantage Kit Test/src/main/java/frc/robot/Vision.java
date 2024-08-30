@@ -36,6 +36,7 @@ public class Vision {
     Transform3d cameraToRobot;
     private Drivetrain m_drivetrain;
     public Vision(Drivetrain drivetrain) {
+        if (Robot.isSimulation()){
         m_drivetrain = drivetrain;
         visionSim = new VisionSystemSim("Vision Sim Table");
         TargetModel targetModel = new TargetModel(0.5, 0.25);
@@ -79,7 +80,8 @@ public class Vision {
         // Get the built-in Field2d used by this VisionSystemSim
         visionSim.getDebugField();
     }
-
+    }
+/* 
     @AutoLogOutput
     public Pose3d getPoseApril() {
         return robotPoseApril;
@@ -93,9 +95,10 @@ public class Vision {
         }
         return result.getBestTarget().getFiducialId();
         
-    }
+    } */
 
     public void periodic() {
+        if (Robot.isSimulation()){
         visionSim.update(m_drivetrain.getPose());
         var debugField = visionSim.getDebugField();
             debugField.getObject("EstimatedRobot").setPose(m_drivetrain.getPose());
@@ -110,5 +113,6 @@ public class Vision {
         }
         robotPoseApril = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), aprilLayout, cameraToRobot);
         } 
+    }
     }
 }

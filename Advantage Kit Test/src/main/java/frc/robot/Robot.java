@@ -110,6 +110,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     m_robotContainer.m_drivetrain.setDisabled();
+    m_robotContainer.m_flywheel.stopPower();
   }
 
   @Override
@@ -119,11 +120,12 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue){
+    /* if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue){
       m_robotContainer.m_drivetrain.resetPose(new Pose2d(1.357, 5.554, new Rotation2d(Math.PI)));
     } else {
       m_robotContainer.m_drivetrain.resetPose(new Pose2d(15.16, 5.554, new Rotation2d()));
-    }
+    } */
+    m_robotContainer.m_drivetrain.resetPose(new Pose2d(0, 0, new Rotation2d(0)));
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
