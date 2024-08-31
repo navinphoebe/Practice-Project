@@ -16,8 +16,9 @@ public class MoveArmToPositionInOneSecond extends Command {
   private double sign;
   public MoveArmToPositionInOneSecond(Arm arm, double targetPosition) {
     m_arm = arm;
-    m_targetPosition =  targetPosition;
-    sign = Math.copySign(1, m_targetPosition - m_arm.angle1 % 360);
+    m_arm.angle1 = m_arm.angle1 % (360 * Math.copySign(1, m_arm.angle1));
+    m_targetPosition = m_targetPosition % (360 * Math.copySign(1, m_targetPosition));
+    sign = Math.copySign(1, m_arm.angle1 - m_targetPosition);
     addRequirements(m_arm);
     // Use addRequirements() here to declare subsystem dependencies.
   }
