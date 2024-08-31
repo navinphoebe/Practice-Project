@@ -10,42 +10,39 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 
 public class MoveArmToPositionInOneSecond extends Command {
-  /** Creates a new MoveArmToPositionInOneSecond. */
-  private Arm m_arm;
-  private double m_targetPosition;
-  private double sign;
+  private final Arm m_arm;
+  private final double m_targetPosition;
+  private final double sign;
+
   public MoveArmToPositionInOneSecond(Arm arm, double targetPosition) {
     m_arm = arm;
-    m_arm.angle1 = m_arm.angle1 % (360 * Math.copySign(1, m_arm.angle1));
-    m_targetPosition = m_targetPosition % (360 * Math.copySign(1, m_targetPosition));
-    sign = Math.copySign(1, m_arm.angle1 - m_targetPosition);
+    m_targetPosition = targetPosition;
+    if (targetPosition == -45){
+      sign = -1;
+    } else {
+      sign = 1;
+    }
     addRequirements(m_arm);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    System.out.println("executing command");
-    if (m_arm.angle1 != m_targetPosition) {
-      m_arm.angle1 -= 1 * sign;
-      
+    System.out.println("Executing command");
+    if (!isFinished()) {
+      m_arm.changeAngle1(sign);
     }
   }
 
-  // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {}
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double wristDifference = m_arm.angle1 - m_targetPosition;
-    if (wristDifference % 360 == 0) {
+    double wristDifference = Math.abs(m_arm.angle1 - m_targetPosition) % 360;
+    if (wristDifference == 0) { 
       return true;
     }
     return false;

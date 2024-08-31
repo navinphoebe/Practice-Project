@@ -18,13 +18,21 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.SimulateModel;
 
 
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */
   public double angle1 = -45;
+  public double angle2 = -45;
+  double[] m_origin = new double[]{ -.26, 0, .2731};
+  double[] elbowPlace = new double[]{0.15, 0, 0.8};
+  double armLength = 0.58;
+  public SimulateModel m_model = new SimulateModel(m_origin, armLength, elbowPlace);
   Pose3d poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
   
+  Pose3d poseB = new Pose3d(0.15, 0, .8, new Rotation3d(Math.toRadians(0), Math.toRadians(70), Math.toRadians(-0)));
+
   public Mechanism2d mech = new Mechanism2d(100, 100);
   public MechanismLigament2d m_wrist;
   public MechanismLigament2d m_wrist2;
@@ -34,7 +42,6 @@ public class Arm extends SubsystemBase {
   public MechanismRoot2d root;
 
   public Arm() {
-    poseA.rotateBy(new Rotation3d(0, Math.toRadians(20), 0));
     // angle2 = 100;
     // the main mechanism object
     // the mechanism root node
@@ -45,21 +52,32 @@ public class Arm extends SubsystemBase {
     m_wrist4 = m_wrist3.append(new MechanismLigament2d("wrist2", 8.0, 130, 6, new Color8Bit(Color.kGreen)));
     m_wrist5 = m_wrist3.append(new MechanismLigament2d("wrist3", 8.0, -50, 6, new Color8Bit(Color.kGreen)));
     SmartDashboard.putData("First Mechanism", mech);
-  }  
+  }
+
 
   @AutoLogOutput
   public Mechanism2d getMechanism() {
     return mech;
   }
 
-  @AutoLogOutput 
-  public Pose3d myPose() {
-    return poseA;
+
+
+  public void changeAngle1(double num){
+    angle1 += num;
   }
 
   @Override
   public void periodic() {
-    poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
+    angle1 = angle1 % 360;
+    m_wrist3.setAngle(angle1);
 
+    m_model.getJointDegrees(angle1, elbowPlace);
+
+    Logger.recordOutput("Array", elbowPlace);
+    Logger.recordOutput("Arm Degrees", angle1);
+
+    poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
+    poseB = new Pose3d(-elbowPlace[0], elbowPlace[1], -elbowPlace[2], new Rotation3d(Math.toRadians(0), Math.toRadians(70), Math.toRadians(-0)));
+    Logger.recordOutput("MyPoseArray", poseA, poseB);
   }
 }
