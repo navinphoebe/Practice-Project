@@ -81,7 +81,7 @@ public class Vision {
         visionSim.getDebugField();
     }
     }
-/* 
+ 
     @AutoLogOutput
     public Pose3d getPoseApril() {
         return robotPoseApril;
@@ -95,7 +95,7 @@ public class Vision {
         }
         return result.getBestTarget().getFiducialId();
         
-    } */
+    } 
 
     public void periodic() {
         if (Robot.isSimulation()){

@@ -93,9 +93,11 @@ public class RobotContainer {
     m_chooser.addOption("On the Fly", getOnTheFlyPathComamand());
     m_chooser.addOption("Navagation Grid", getNavigationGridDemoPathCommand());
     SmartDashboard.putData(m_chooser);
-    m_driverController.pov(0).onTrue(new MoveArmToPositionInOneSecond(m_arm, -100));
-    m_driverController.pov(180).onTrue(new MoveArmToPositionInOneSecond(m_arm, -80));
-    m_driverController.button(1).onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
+    m_driverController.axisGreaterThan(0, .1).onTrue(new MoveArmToPositionInOneSecond(m_arm, -10));
+    m_driverController.axisGreaterThan(1, .1).onTrue(new MoveArmToPositionInOneSecond(m_arm, -45));
+    // m_driverController..onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
+   //m_driverController.button(0).onTrue(new MoveCADArmToPosition(m_arm, -70));
+   // m_driverController.button(2).onTrue(new MoveCADArmToPosition(m_arm, -45));
   }
 
   /**
@@ -120,7 +122,7 @@ public class RobotContainer {
 
   public Command getFollowTestPathCommand() {
     // An example command will be run in autonomous
-    PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory("NewPath.1");
+    PathPlannerPath path = PathPlannerPath.fromChoreoTrajectory("NewPath");
     //PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
     return AutoBuilder.followPath(path);
   }
@@ -183,5 +185,6 @@ public class RobotContainer {
   public Command getSwerveDriveCommand() {
     return new DrivetrainDefaultCommand(
         m_drivetrain, m_driverController);
+
   }
 }

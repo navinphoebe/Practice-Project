@@ -8,6 +8,8 @@ import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -20,8 +22,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */
-  public double angle1;
-  public double angle2;
+  public double angle1 = -45;
+  Pose3d poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
+  
   public Mechanism2d mech = new Mechanism2d(100, 100);
   public MechanismLigament2d m_wrist;
   public MechanismLigament2d m_wrist2;
@@ -31,7 +34,7 @@ public class Arm extends SubsystemBase {
   public MechanismRoot2d root;
 
   public Arm() {
-    angle1 = -100;
+    poseA.rotateBy(new Rotation3d(0, Math.toRadians(20), 0));
     // angle2 = 100;
     // the main mechanism object
     // the mechanism root node
@@ -42,55 +45,21 @@ public class Arm extends SubsystemBase {
     m_wrist4 = m_wrist3.append(new MechanismLigament2d("wrist2", 8.0, 130, 6, new Color8Bit(Color.kGreen)));
     m_wrist5 = m_wrist3.append(new MechanismLigament2d("wrist3", 8.0, -50, 6, new Color8Bit(Color.kGreen)));
     SmartDashboard.putData("First Mechanism", mech);
-  }
-/* 
-  public Command initialPosition() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          angle1 = 100;
-          angle2 = 100;
-        });
-  }
-
-  public Command groundPickup() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          angle1 = 170;
-          angle2 = 70;
-        });
-  }
-
-  public Command defendedScoring() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          angle1 = 160;
-          angle2 = 60;
-        });
-  }
-
-  public Command ampScoring() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          angle1 = 90;
-          angle2 = -160;
-        });
-  }  */
+  }  
 
   @AutoLogOutput
   public Mechanism2d getMechanism() {
     return mech;
   }
 
+  @AutoLogOutput 
+  public Pose3d myPose() {
+    return poseA;
+  }
+
   @Override
   public void periodic() {
-    m_wrist3.setAngle(angle1);
+    poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
+
   }
 }

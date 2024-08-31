@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.time.format.SignStyle;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Arm;
 
@@ -15,7 +17,7 @@ public class MoveArmToPositionInOneSecond extends Command {
   public MoveArmToPositionInOneSecond(Arm arm, double targetPosition) {
     m_arm = arm;
     m_targetPosition =  targetPosition;
-    sign = Math.copySign(1, m_arm.angle1 - m_targetPosition);
+    sign = Math.copySign(1, m_targetPosition - m_arm.angle1 % 360);
     addRequirements(m_arm);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -27,8 +29,10 @@ public class MoveArmToPositionInOneSecond extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    System.out.println("executing command");
     if (m_arm.angle1 != m_targetPosition) {
       m_arm.angle1 -= 1 * sign;
+      
     }
   }
 
