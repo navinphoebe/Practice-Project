@@ -11,13 +11,18 @@ import frc.robot.subsystems.Arm;
 
 public class MoveArmToPositionInOneSecond extends Command {
   private final Arm m_arm;
-  private final double m_targetPosition;
+  private double m_targetPosition;
   private final double sign;
 
   public MoveArmToPositionInOneSecond(Arm arm, double targetPosition) {
     m_arm = arm;
-    m_targetPosition = targetPosition;
-    if (targetPosition % 360 < m_arm.angle1 % 360){
+    m_arm.angle1 = m_arm.angle1 % 360;
+    m_arm.angle1 += 360;
+    m_arm.angle1 = m_arm.angle1 % 360;
+    m_targetPosition = targetPosition % 360;
+    m_targetPosition += 360;
+    m_targetPosition = targetPosition % 360;
+    if (targetPosition < m_arm.angle1){
       sign = -1;
     } else {
       sign = 1;
