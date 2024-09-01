@@ -16,8 +16,8 @@ public class SimulateModel {
     }
 
     public double[] getJointDegrees(double degrees, double[] jointArea) {
-        double x = m_origin[0] + m_armLength * Math.cos(Math.toRadians(degrees));
-        double z = m_origin[2] + m_armLength * Math.sin(Math.toRadians(degrees));
+        double x = m_origin[0] + m_armLength * Math.cos(Math.toRadians(degrees * -1));
+        double z = m_origin[2] + m_armLength * Math.sin(Math.toRadians(degrees * -1));
         m_jointArea[0] = x;
         m_jointArea[2] = z;
         return m_jointArea;

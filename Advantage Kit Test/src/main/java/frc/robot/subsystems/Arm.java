@@ -24,14 +24,15 @@ import frc.robot.SimulateModel;
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */
   public double angle1 = -45;
-  public double angle2 = -45;
+  public double angle2 = 70;
   double[] m_origin = new double[]{ -.26, 0, .2731};
   double[] elbowPlace = new double[]{0.15, 0, 0.8};
-  double armLength = 0.58;
+  double armLength = 0.6;
+  public Shooter m_shooter;
   public SimulateModel m_model = new SimulateModel(m_origin, armLength, elbowPlace);
-  Pose3d poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
+  public Pose3d poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
   
-  Pose3d poseB = new Pose3d(0.15, 0, .8, new Rotation3d(Math.toRadians(0), Math.toRadians(70), Math.toRadians(-0)));
+  public Pose3d poseB = new Pose3d(0.15, 0, .8, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
 
   public Mechanism2d mech = new Mechanism2d(100, 100);
   public MechanismLigament2d m_wrist;
@@ -41,7 +42,8 @@ public class Arm extends SubsystemBase {
   public MechanismLigament2d m_wrist5;
   public MechanismRoot2d root;
 
-  public Arm() {
+  public Arm(Shooter shooter) {
+    m_shooter = shooter;
     // angle2 = 100;
     // the main mechanism object
     // the mechanism root node
@@ -64,12 +66,17 @@ public class Arm extends SubsystemBase {
 
   public void changeAngle1(double num){
     angle1 += num;
+    m_shooter.changeAngle2(num);
   }
+
+  
 
   @Override
   public void periodic() {
     angle1 = angle1 % 360;
+    angle2 = m_shooter.getAngle2();
     m_wrist3.setAngle(angle1);
+    m_shooter.updatePose3d(poseB);
 
     m_model.getJointDegrees(angle1, elbowPlace);
 
@@ -77,7 +84,7 @@ public class Arm extends SubsystemBase {
     Logger.recordOutput("Arm Degrees", angle1);
 
     poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
-    poseB = new Pose3d(-elbowPlace[0], elbowPlace[1], -elbowPlace[2], new Rotation3d(Math.toRadians(0), Math.toRadians(70), Math.toRadians(-0)));
+    poseB = new Pose3d(elbowPlace[0], elbowPlace[1], elbowPlace[2], new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
     Logger.recordOutput("MyPoseArray", poseA, poseB);
   }
 }

@@ -9,6 +9,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.DrivetrainDefaultCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.MoveArmToPositionInOneSecond;
+import frc.robot.commands.MoveShooter;
 import frc.robot.commands.SetMotorSpeed;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.DriveIO;
@@ -18,6 +19,7 @@ import frc.robot.subsystems.DrivetrainSubsystemReal;
 import frc.robot.subsystems.DrivetrainSubsystemSim;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.FlywheelSubystemSim;
+import frc.robot.subsystems.Shooter;
 
 import java.util.List;
 
@@ -34,6 +36,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -51,7 +54,8 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   public Drivetrain m_drivetrain;
-  public Arm m_arm = new Arm();
+  public Shooter m_shooter = new Shooter();
+  public Arm m_arm = new Arm(m_shooter);
   public FlywheelSubystemSim m_flywheel = new FlywheelSubystemSim();
   // public final DrivetrainSwerveDrive m_swerveDrive = new DrivetrainSwerveDrive();
 
@@ -95,6 +99,11 @@ public class RobotContainer {
     SmartDashboard.putData(m_chooser);
     m_driverController.axisGreaterThan(0, .1).onTrue(new MoveArmToPositionInOneSecond(m_arm, -10));
     m_driverController.axisGreaterThan(1, .1).onTrue(new MoveArmToPositionInOneSecond(m_arm, -45));
+    m_driverController.axisLessThan(0, -.1).onTrue(new MoveShooter(m_shooter, 70));
+    m_driverController.axisLessThan(1, -.1).onTrue(new ParallelCommandGroup(
+      new MoveArmToPositionInOneSecond(m_arm, -10),
+      new MoveShooter(m_shooter, 70)
+      ));
     // m_driverController..onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
    //m_driverController.button(0).onTrue(new MoveCADArmToPosition(m_arm, -70));
    // m_driverController.button(2).onTrue(new MoveCADArmToPosition(m_arm, -45));
