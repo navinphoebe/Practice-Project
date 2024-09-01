@@ -17,7 +17,7 @@ public class MoveArmToPositionInOneSecond extends Command {
   public MoveArmToPositionInOneSecond(Arm arm, double targetPosition) {
     m_arm = arm;
     m_targetPosition = targetPosition;
-    if (targetPosition == -45){
+    if (targetPosition % 360 < m_arm.angle1 % 360){
       sign = -1;
     } else {
       sign = 1;
