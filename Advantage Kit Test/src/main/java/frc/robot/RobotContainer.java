@@ -8,10 +8,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DrivetrainDefaultCommand;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.MoveArmToPositionInOneSecond;
-import frc.robot.commands.MoveShooter;
+import frc.robot.commands.MoveArmAndShooterToPosition;
+import frc.robot.commands.MoveArmRelativeDegrees;
+import frc.robot.commands.MoveShooterRelativeDegrees;
 import frc.robot.commands.SetMotorSpeed;
-import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveIO;
 import frc.robot.subsystems.DriveSimIO;
 import frc.robot.subsystems.Drivetrain;
@@ -19,7 +20,7 @@ import frc.robot.subsystems.DrivetrainSubsystemReal;
 import frc.robot.subsystems.DrivetrainSubsystemSim;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.FlywheelSubystemSim;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.ShooterSubsystem;
 
 import java.util.List;
 
@@ -54,8 +55,8 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   public Drivetrain m_drivetrain;
-  public Shooter m_shooter = new Shooter();
-  public Arm m_arm = new Arm(m_shooter);
+  public ShooterSubsystem m_shooter = new ShooterSubsystem();
+  public ArmSubsystem m_arm = new ArmSubsystem(m_shooter);
   public FlywheelSubystemSim m_flywheel = new FlywheelSubystemSim();
   // public final DrivetrainSwerveDrive m_swerveDrive = new DrivetrainSwerveDrive();
 
@@ -97,13 +98,11 @@ public class RobotContainer {
     m_chooser.addOption("On the Fly", getOnTheFlyPathComamand());
     m_chooser.addOption("Navagation Grid", getNavigationGridDemoPathCommand());
     SmartDashboard.putData(m_chooser);
-    m_driverController.axisGreaterThan(0, .1).onTrue(new MoveArmToPositionInOneSecond(m_arm, 10));
-    m_driverController.axisGreaterThan(1, .1).onTrue(new MoveArmToPositionInOneSecond(m_arm, -45));
-    m_driverController.axisLessThan(0, -.1).onTrue(new MoveShooter(m_shooter, 70));
-    m_driverController.axisLessThan(1, -.1).onTrue((
-      new MoveArmToPositionInOneSecond(m_arm, -10)).alongWith(
-      new MoveShooter(m_shooter, 70)));
-      
+    m_driverController.axisGreaterThan(0, .1).whileTrue(new MoveArmRelativeDegrees(m_arm, -1.0));
+    m_driverController.axisGreaterThan(1, .1).whileTrue(new MoveArmRelativeDegrees(m_arm, 1.0));
+    m_driverController.axisLessThan(0, -.1).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm,-45, 70)));
+    m_driverController.axisLessThan(1, -.1).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm, -5, 65)));
+    
     // m_driverController..onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
    //m_driverController.button(0).onTrue(new MoveCADArmToPosition(m_arm, -70));
    // m_driverController.button(2).onTrue(new MoveCADArmToPosition(m_arm, -45));

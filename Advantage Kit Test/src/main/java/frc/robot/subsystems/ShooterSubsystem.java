@@ -21,20 +21,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SimulateModel;
 
 
-public class Shooter extends SubsystemBase {
-  /** Creates a new Arm. */
-  public double angle1 = -45;
-  public double angle2 = 70;
+public class ShooterSubsystem extends SubsystemBase {
+  
+  private double angle2 = 70;
   double[] m_origin = new double[]{ -.26, 0, .2731};
   double[] elbowPlace = new double[]{0.15, 0, 0.8};
 
   public Pose3d pose = new Pose3d(0.15, 0, .8, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
   
-  public Shooter() {
+  public ShooterSubsystem() {
   }
 
   public void changeAngle2(double num){
     angle2 += num;
+  }
+
+  public void setAngle2(double num) {
+    angle2 = num;
   }
 
   public void updatePose3d(Pose3d pose3d) {
@@ -49,5 +52,10 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     Logger.recordOutput("Array", elbowPlace);
     Logger.recordOutput("Shooter Degrees", angle2);
+  }
+
+  public void moveShooterToAngle(ShooterSubsystem m_shooter, double m_changeValue) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'moveShooterToAngle'");
   }
 }
