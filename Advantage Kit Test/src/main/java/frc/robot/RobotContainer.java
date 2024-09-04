@@ -98,10 +98,10 @@ public class RobotContainer {
     m_chooser.addOption("On the Fly", getOnTheFlyPathComamand());
     m_chooser.addOption("Navagation Grid", getNavigationGridDemoPathCommand());
     SmartDashboard.putData(m_chooser);
-    m_driverController.axisGreaterThan(0, .1).whileTrue(new MoveArmRelativeDegrees(m_arm, -1.0));
-    m_driverController.axisGreaterThan(1, .1).whileTrue(new MoveArmRelativeDegrees(m_arm, 1.0));
-    m_driverController.axisLessThan(0, -.1).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm,-45, 70)));
-    m_driverController.axisLessThan(1, -.1).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm, -5, 65)));
+    m_driverController.pov(0).whileTrue(new MoveArmRelativeDegrees(m_arm, -1.0));
+    m_driverController.pov(90).whileTrue(new MoveArmRelativeDegrees(m_arm, 1.0));
+    m_driverController.pov(180).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm,-45, 70)));
+    m_driverController.pov(270).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm, -5, 65)));
     
     // m_driverController..onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
    //m_driverController.button(0).onTrue(new MoveCADArmToPosition(m_arm, -70));

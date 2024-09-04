@@ -37,12 +37,9 @@ public class DrivetrainDefaultCommand extends Command {
   @Override
   public void execute() {
     double controllerDirection = DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? 1 : -1;
-    //double x = m_driverController.getRawAxis(1) * controllerDirection;
-    //double y = m_driverController.getRawAxis(0) * controllerDirection;
-    //double r = m_driverController.getRawAxis(2) * -1;
-    double x = 0;
-    double y = 0;
-    double r = 0;
+    double x = m_driverController.getRawAxis(1) * controllerDirection;
+    double y = m_driverController.getRawAxis(0) * controllerDirection;
+    double r = m_driverController.getRawAxis(2) * -1;
     x = applyDeadband(x);
     y = applyDeadband(y);
     r = applyDeadband(r);
