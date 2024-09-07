@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoAdjustWithAprilTags;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DrivetrainDefaultCommand;
 import frc.robot.commands.ExampleCommand;
@@ -59,11 +60,13 @@ public class RobotContainer {
   public ArmSubsystem m_arm = new ArmSubsystem(m_shooter);
   public FlywheelSubystemSim m_flywheel = new FlywheelSubystemSim();
   // public final DrivetrainSwerveDrive m_swerveDrive = new DrivetrainSwerveDrive();
+  public Vision m_vision;
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
   SendableChooser<Command> m_redChooser = new SendableChooser<>();
   SendableChooser<Command> m_blueChooser = new SendableChooser<>();
   SendableChooser<Command> m_positionChooser = m_redChooser;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     if (Robot.isReal()) {
@@ -72,7 +75,9 @@ public class RobotContainer {
       m_drivetrain = new DrivetrainSubsystemSim(new DriveSimIO() {});
     }
     // Configure the trigger bindings
+    m_vision = new Vision(m_drivetrain);
     configureBindings();
+    
 
   }
 
@@ -104,7 +109,7 @@ public class RobotContainer {
     m_driverController.pov(270).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm, -5, 65)));
     
     // m_driverController..onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
-   //m_driverController.button(0).onTrue(new MoveCADArmToPosition(m_arm, -70));
+    m_driverController.x().whileTrue(new AutoAdjustWithAprilTags(m_vision, m_shooter));
    // m_driverController.button(2).onTrue(new MoveCADArmToPosition(m_arm, -45));
   }
 

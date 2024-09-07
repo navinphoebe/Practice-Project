@@ -10,6 +10,8 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -19,6 +21,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SimulateModel;
+import frc.robot.commands.MoveShooterToPosition;
 
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -28,12 +31,21 @@ public class ShooterSubsystem extends SubsystemBase {
   double[] elbowPlace = new double[]{0.15, 0, 0.8};
 
   public Pose3d pose = new Pose3d(0.15, 0, .8, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
+  private InterpolatingDoubleTreeMap shooterAngleMapDown = new InterpolatingDoubleTreeMap();
   
   public ShooterSubsystem() {
+    populateShooterAngleMapDown();
   }
 
   public void changeAngle2(double num){
     angle2 += num;
+  }
+
+  private void populateShooterAngleMapDown(){
+    var array = ShooterConstants.SHOOTER_ANGLE_FROM__DOWN;
+    for(int i = 0; i < array.length; i++){
+        shooterAngleMapDown.put(array[i][0], array[i][1]);
+    }
   }
 
   public void setAngle2(double num) {
@@ -54,8 +66,9 @@ public class ShooterSubsystem extends SubsystemBase {
     Logger.recordOutput("Shooter Degrees", angle2);
   }
 
-  public void moveShooterToAngle(ShooterSubsystem m_shooter, double m_changeValue) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'moveShooterToAngle'");
-  }
+  public double getShooterAngleMapDown(double distance){
+    double angle = shooterAngleMapDown.get(Units.metersToInches(distance));
+    return angle;
+}
+
 }

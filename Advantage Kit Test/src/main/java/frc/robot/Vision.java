@@ -23,6 +23,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.Drivetrain;
 
 /** Add your docs here. */
@@ -35,6 +37,7 @@ public class Vision {
     Transform3d robotToCamera;
     Transform3d cameraToRobot;
     private Drivetrain m_drivetrain;
+    
     public Vision(Drivetrain drivetrain) {
         if (Robot.isSimulation()){
         m_drivetrain = drivetrain;
@@ -115,4 +118,45 @@ public class Vision {
         } 
     }
     }
+
+    public boolean hasGoalTarget() {
+        var result = cameraSim.getCamera().getLatestResult();
+        if (result.hasTargets()){
+        var target = result.getBestTarget();
+        double id = target.getFiducialId();
+        if (isGoal(id)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+    }
+
+    private boolean isGoal(double id) {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue && (id == 7 || id == 8)) {
+            return true;
+        } else if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red && (id == 3 || id == 4)){
+            return true;
+        }
+        return true;
+    }
+
+    public double getGoalDistance() {
+        var result = cameraSim.getCamera().getLatestResult();
+
+        if (result.hasTargets()) {
+            // First calculate range
+            double range =
+                    PhotonUtils.calculateDistanceToTargetMeters(
+                            .5,
+                            Units.inchesToMeters(53.88),
+                            Math.toRadians(-15),
+                            Units.degreesToRadians(result.getBestTarget().getPitch()));
+                  
+            return range;
+    }
+    return 0;
+}
 }

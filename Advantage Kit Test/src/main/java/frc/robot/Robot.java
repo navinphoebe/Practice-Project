@@ -28,8 +28,6 @@ public class Robot extends LoggedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private Vision m_vision;
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -87,7 +85,6 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
     m_robotContainer = new RobotContainer();
-    m_vision = new Vision(m_robotContainer.m_drivetrain);
   }
 
   /**
@@ -104,6 +101,7 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    m_robotContainer.m_vision.periodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -169,6 +167,5 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-    m_vision.periodic();
   }
 }
