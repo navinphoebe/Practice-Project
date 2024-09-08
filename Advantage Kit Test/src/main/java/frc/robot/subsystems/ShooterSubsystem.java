@@ -28,9 +28,8 @@ public class ShooterSubsystem extends SubsystemBase {
   
   private double angle2 = 70;
   double[] m_origin = new double[]{ -.26, 0, .2731};
-  double[] elbowPlace = new double[]{0.15, 0, 0.8};
 
-  public Pose3d pose = new Pose3d(0.15, 0, .8, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
+  public Pose3d pose = new Pose3d(0.15, 0, 10, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
   private InterpolatingDoubleTreeMap shooterAngleMapDown = new InterpolatingDoubleTreeMap();
   
   public ShooterSubsystem() {
@@ -62,13 +61,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Array", elbowPlace);
     Logger.recordOutput("Shooter Degrees", angle2);
   }
 
   public double getShooterAngleMapDown(double distance){
     double angle = shooterAngleMapDown.get(Units.metersToInches(distance));
-    return angle;
+    return -angle + 55;
 }
 
 }

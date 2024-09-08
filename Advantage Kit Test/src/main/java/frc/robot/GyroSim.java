@@ -30,4 +30,8 @@ public class GyroSim {
         rotateValue += value;
         return rotateValue;
     }
+
+    public void update(double radians) {
+        rotateValue = radians;
+    }
 }

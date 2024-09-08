@@ -5,9 +5,11 @@
 package frc.robot;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.estimation.TargetModel;
@@ -15,13 +17,16 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.simulation.VisionTargetSim;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -73,7 +78,7 @@ public class Vision {
         // (Robot pose is considered the center of rotation at the floor level, or Z = 0)
         Translation3d robotToCameraTrl = new Translation3d(0.1, 0, 0.5);
         // and pitched 15 degrees up.
-        Rotation3d robotToCameraRot = new Rotation3d(0, Math.toRadians(-15), 0);
+        Rotation3d robotToCameraRot = new Rotation3d(0, Math.toRadians(-15), Math.PI);
         robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
         cameraToRobot = robotToCamera.inverse();
 
@@ -115,7 +120,9 @@ public class Vision {
             aprilLayout = aprilTagLayout.get();
         }
         robotPoseApril = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), aprilLayout, cameraToRobot);
+         m_drivetrain.updateVision(robotPoseApril);
         } 
+       
     }
     }
 
@@ -124,39 +131,114 @@ public class Vision {
         if (result.hasTargets()){
         var target = result.getBestTarget();
         double id = target.getFiducialId();
-        if (isGoal(id)) {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
+        if (id == 7 || id == 8) {
             return true;
         } else {
             return false;
         }
     }
+    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+        if (id == 3 || id == 4) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    }
     return false;
+    }
+
+    public double getAlignDegrees(boolean tr) {
+        Pose2d pose = m_drivetrain.getEstimatedPose();
+        if (pose != null) {
+        if (Units.inchesToMeters(-1.5) - pose.getX() != 0) {
+        return pose.getRotation().getDegrees() - Math.toDegrees(Math.atan((Units.inchesToMeters(218.42) - pose.getY())/(Units.inchesToMeters(-1.5) - pose.getX())));
+        } 
+    }
+        return 0;
+        
+    }
+
+    public double getAlignDegrees() {
+            var result = cameraSim.getCamera().getLatestResult();
+        
+
+        if (result.hasTargets()) {
+            int target = getGoalTarget(result.getTargets());
+            if (target != -1) {
+            var targetList = result.getTargets();
+            PhotonTrackedTarget goal = targetList.get(target);
+            double distanceMeters =
+                    PhotonUtils.calculateDistanceToTargetMeters(
+                            .5,
+                            Units.inchesToMeters(53.88),
+                            Math.toRadians(15),
+                            Units.degreesToRadians(goal.getPitch()));
+        Translation2d translation = PhotonUtils.estimateCameraToTargetTranslation(
+        distanceMeters, Rotation2d.fromDegrees(-goal.getYaw()));
+        System.out.println(-translation.getAngle().getDegrees());
+        return -translation.getAngle().getDegrees();
+        
+        
+                            
+    }
+}
+    return 0;
     }
 
     private boolean isGoal(double id) {
         var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue && (id == 7 || id == 8)) {
+        if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue && id == 7) {
             return true;
         } else if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red && (id == 3 || id == 4)){
             return true;
         }
-        return true;
+        return false;
     }
 
     public double getGoalDistance() {
         var result = cameraSim.getCamera().getLatestResult();
+        
 
         if (result.hasTargets()) {
+            int target = getGoalTarget(result.getTargets());
+            if (target != -1) {
+            var targetList = result.getTargets();
+            PhotonTrackedTarget goal = targetList.get(target);
             // First calculate range
             double range =
                     PhotonUtils.calculateDistanceToTargetMeters(
                             .5,
-                            Units.inchesToMeters(53.88),
-                            Math.toRadians(-15),
-                            Units.degreesToRadians(result.getBestTarget().getPitch()));
+                            Units.inchesToMeters(55),
+                            Math.toRadians(15),
+                            Units.degreesToRadians(goal.getPitch()));
+                            Logger.recordOutput("goal distance", range);
                   
-            return range;
+            return range - .422;
+        }
     }
     return 0;
 }
+
+public double getGoalDistance(boolean tr) {
+    Pose2d pose = m_drivetrain.getEstimatedPose();
+      if (pose != null) {
+        return Math.pow(Units.inchesToMeters(218.42) - pose.getY(), 2) + Math.pow(Units.inchesToMeters(-1.5) - pose.getX(), 2) - .422;
+        
+    }
+        return 0;
+
+}
+
+    private int getGoalTarget(List<PhotonTrackedTarget> targets) {
+        Object[] array = targets.toArray();
+        for (int x = 0; x < array.length; x++) {
+            if (isGoal(targets.get(x).getFiducialId())) {
+                return x;
+            }
+        }
+        return -1;
+    }
 }

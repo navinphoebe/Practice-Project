@@ -13,6 +13,7 @@ import frc.robot.commands.MoveArmAndShooterToPosition;
 import frc.robot.commands.MoveArmRelativeDegrees;
 import frc.robot.commands.MoveShooterRelativeDegrees;
 import frc.robot.commands.SetMotorSpeed;
+import frc.robot.commands.TurnToAutoAlign;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveIO;
 import frc.robot.subsystems.DriveSimIO;
@@ -38,6 +39,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -67,6 +69,15 @@ public class RobotContainer {
   SendableChooser<Command> m_blueChooser = new SendableChooser<>();
   SendableChooser<Command> m_positionChooser = m_redChooser;
 
+  public static DrivetrainState DRIVETRAIN_STATE = DrivetrainState.FREEHAND;
+
+  public enum DrivetrainState {
+    FREEHAND,
+    ROBOT_ALIGN,
+    
+}
+
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     if (Robot.isReal()) {
@@ -76,6 +87,7 @@ public class RobotContainer {
     }
     // Configure the trigger bindings
     m_vision = new Vision(m_drivetrain);
+    DRIVETRAIN_STATE = DrivetrainState.FREEHAND;
     configureBindings();
     
 
@@ -104,13 +116,18 @@ public class RobotContainer {
     m_chooser.addOption("Navagation Grid", getNavigationGridDemoPathCommand());
     SmartDashboard.putData(m_chooser);
     m_driverController.pov(0).whileTrue(new MoveArmRelativeDegrees(m_arm, -1.0));
-    m_driverController.pov(90).whileTrue(new MoveArmRelativeDegrees(m_arm, 1.0));
-    m_driverController.pov(180).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm,-45, 70)));
-    m_driverController.pov(270).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm, -5, 65)));
+   m_driverController.pov(90).whileTrue(new MoveArmRelativeDegrees(m_arm, 1.0));
+   m_driverController.pov(180).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm,-45, 70)));
+   m_driverController.pov(270).whileTrue((new MoveArmAndShooterToPosition(m_shooter, m_arm, -5, 65)).alongWith(new InstantCommand(() -> DRIVETRAIN_STATE = DrivetrainState.FREEHAND)));
     
     // m_driverController..onTrue(new SetMotorSpeed(m_flywheel, 5)).onFalse(new SetMotorSpeed(m_flywheel, 0));
-    m_driverController.x().whileTrue(new AutoAdjustWithAprilTags(m_vision, m_shooter));
-   // m_driverController.button(2).onTrue(new MoveCADArmToPosition(m_arm, -45));
+    m_shooter.setDefaultCommand((new AutoAdjustWithAprilTags(m_vision, m_shooter)));
+     m_driverController.x().whileTrue((new TurnToAutoAlign(m_drivetrain, m_vision)));
+   m_driverController.button(2).onTrue(new MoveArmAndShooterToPosition(m_shooter, m_arm, -90, -40));
+
+  
+      m_driverController.x().onTrue((new InstantCommand(() -> DRIVETRAIN_STATE = DrivetrainState.ROBOT_ALIGN)).alongWith((new MoveArmAndShooterToPosition(m_shooter, m_arm, -5))))
+      .onFalse(new InstantCommand(() -> DRIVETRAIN_STATE = DrivetrainState.FREEHAND));
   }
 
   /**
@@ -197,7 +214,7 @@ public class RobotContainer {
 
   public Command getSwerveDriveCommand() {
     return new DrivetrainDefaultCommand(
-        m_drivetrain, m_driverController);
+        m_drivetrain, m_driverController, m_vision);
 
   }
 }

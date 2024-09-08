@@ -18,6 +18,7 @@ import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -310,5 +311,15 @@ public class DrivetrainSubsystemReal extends SubsystemBase implements Drivetrain
   @AutoLogOutput
   public Field2d getField() {
     return _field2d;
+  }
+
+  @Override
+  public void updateVision(Pose3d robotPoseApril) {
+    // Only to stop errors, will fix later
+  }
+
+  @Override
+  public Pose2d getEstimatedPose() {
+    return new Pose2d();
   }
 }

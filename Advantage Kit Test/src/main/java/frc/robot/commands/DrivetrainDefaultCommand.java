@@ -4,6 +4,9 @@
 
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -13,17 +16,25 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.DrivetrainState;
+import frc.robot.Vision;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.DrivetrainSubsystemSim;
 
 public class DrivetrainDefaultCommand extends Command {
   private Drivetrain m_drivetrain;
   private CommandXboxController m_driverController;
+  private Vision m_vision;
+  private double m_target;
+  
   private ChassisSpeeds _chassisSpeeds = new ChassisSpeeds(0,0,0);
   /** Creates a new DrivetrainDefaultCommand. */
-  public DrivetrainDefaultCommand(Drivetrain drivetrain, CommandXboxController driverController) {
+  public DrivetrainDefaultCommand(Drivetrain drivetrain, CommandXboxController driverController, Vision vision) {
     m_driverController = driverController;
     m_drivetrain = drivetrain;
+    m_vision = vision;
+    m_target = m_vision.getAlignDegrees(true);
     addRequirements(m_drivetrain);
   }
 
@@ -44,13 +55,25 @@ public class DrivetrainDefaultCommand extends Command {
     y = applyDeadband(y);
     r = applyDeadband(r);
     double maxVelocity = m_drivetrain.getMaxVelocity();
-    x = x * maxVelocity;
-    y = y * maxVelocity;
+    x = x * 1;
+    y = y * 1;
     r = r * Constants.DRIVE_MAX_TURN_RADIANS_PER_SECOND;
-
-    _chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x, y, r, m_drivetrain.getGyroscopeRotation());
+    Rotation2d gyroRotation = m_drivetrain.getPose().getRotation();
+    _chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(x, y, r, gyroRotation);
 
     m_drivetrain.drive(_chassisSpeeds);
+
+    Logger.recordOutput("is target", m_vision.hasGoalTarget());
+    if (Math.abs(m_vision.getAlignDegrees(true)) > 8 && RobotContainer.DRIVETRAIN_STATE == DrivetrainState.ROBOT_ALIGN) {
+      m_target = m_vision.getAlignDegrees(true);
+      Pose2d pose = m_drivetrain.getPose();
+      Logger.recordOutput("align degrees", m_target);
+      double sign = Math.copySign(1, m_target);
+      m_drivetrain.resetPose(new Pose2d(pose.getX(), pose.getY(), new Rotation2d(Math.toRadians(pose.getRotation().getDegrees() - sign))));
+      
+      controllerDirection = DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? 1 : -1;
+      gyroRotation = m_drivetrain.getPose().getRotation();
+    }
   }
 
   private double applyDeadband(double x) {

@@ -5,6 +5,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.DrivetrainState;
+import frc.robot.Vision;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -18,9 +21,11 @@ public class MoveArmAndShooterToPosition extends Command {
   private double m_shooterAngle;
   private double armSign;
   private double shooterSign;
+  private boolean tr;
   public MoveArmAndShooterToPosition(ShooterSubsystem shooter, ArmSubsystem arm, double armTarget, double shooterTarget) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_shooter = shooter;
+    tr = false;
     m_arm = arm;
     m_armTarget = armTarget;
     m_shooterTarget = shooterTarget;
@@ -28,12 +33,22 @@ public class MoveArmAndShooterToPosition extends Command {
     addRequirements(m_shooter, m_arm);
   }
 
+  public MoveArmAndShooterToPosition(ShooterSubsystem shooter, ArmSubsystem arm, double armTarget) {
+    // Use addRequirements() here to declare subsystem dependencies.
+    m_shooter = shooter;
+    m_arm = arm;
+    tr = true;
+    m_armTarget = armTarget;
+    m_shooterTarget = m_shooter.getAngle2();
+    addRequirements(m_arm);
+  }
+
   public double calculateNegativeOrPositive(double angle, double target) {
-    boolean greater = target - angle > 0 && target - angle < 180;
-    if (greater) {
-      return 1;
-    } else {
+    boolean greater = (target - angle < 180 && target - angle > 0) || (target - angle < -180);
+    if (!greater) {
       return -1;
+    } else {
+      return 1;
     }
   }
 
@@ -56,7 +71,6 @@ public class MoveArmAndShooterToPosition extends Command {
     m_shooterAngle = m_shooter.getAngle2() % 360;
     m_shooterAngle += 360;
     m_shooterAngle = m_shooterAngle % 360;
-    m_shooter.setAngle2(m_shooterAngle);
     armSign = calculateNegativeOrPositive(m_armAngle, m_armTarget);
     shooterSign = calculateNegativeOrPositive(m_shooterAngle, m_shooterTarget);
   }
@@ -67,18 +81,20 @@ public class MoveArmAndShooterToPosition extends Command {
     if ((m_armTarget - m_arm.getAngle1()) % 360 != 0) {
       m_arm.changeOnlyAngle1(armSign);
     }
-    if ((m_shooterTarget - m_shooter.getAngle2()) % 360 != 0) {
+    if ((m_shooterTarget - m_shooter.getAngle2()) % 360 != 0 && tr == false) {
       m_shooter.changeAngle2(shooterSign);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  
+  }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ((m_armTarget - m_arm.getAngle1()) % 360 == 0) && ((m_shooterTarget - m_shooter.getAngle2()) % 360 == 0);
+    return (Math.abs((m_armTarget - m_arm.getAngle1())) % 360 < 2) && (Math.abs((m_shooterTarget - m_shooter.getAngle2()) % 360) < 2);
   }
 }

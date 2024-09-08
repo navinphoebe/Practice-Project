@@ -26,13 +26,13 @@ public class ArmSubsystem extends SubsystemBase {
   private double angle1 = -45;
   private double angle2 = 70;
   double[] m_origin = new double[]{ -.26, 0, .2731};
-  double[] elbowPlace = new double[]{0.15, 0, 1.3};
+  double[] elbowPlace = new double[]{0.15, 0, 0};
   double armLength = 0.6;
   public ShooterSubsystem m_shooter;
   public SimulateModel m_model = new SimulateModel(m_origin, armLength, elbowPlace);
   public Pose3d poseA = new Pose3d(-0.26, 0, 0.2731, new Rotation3d(Math.toRadians(180), Math.toRadians(angle1), Math.toRadians(0)));
   
-  public Pose3d poseB = new Pose3d(0.15, 0, 1.3, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
+  public Pose3d poseB = new Pose3d(0.15, 0, 0, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
 
   public Mechanism2d mech = new Mechanism2d(100, 100);
   public MechanismLigament2d m_wrist;
@@ -89,7 +89,6 @@ public class ArmSubsystem extends SubsystemBase {
   public void periodic() {
     angle2 = m_shooter.getAngle2();
     m_wrist3.setAngle(angle1);
-    m_shooter.updatePose3d(poseB);
 
     m_model.getJointDegrees(angle1, elbowPlace);
 

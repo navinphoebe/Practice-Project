@@ -29,6 +29,9 @@ import com.swervedrivespecialties.swervelib.MechanicalConfiguration;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -44,7 +47,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -75,6 +80,7 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
   public SwerveModuleState frontRight;
   public SwerveModuleState backLeft;
   public SwerveModuleState backRight;
+  public Pose2d poseEstimated;
   public static final MechanicalConfiguration MK4I_L2_PLUS = new MechanicalConfiguration(
     0.10033,
     (16.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0),
@@ -104,6 +110,21 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
 
   private final DriveIOInputsAutoLogged inputs = new DriveIOInputsAutoLogged();
   private final DriveIO m_io;
+
+    private final SwerveDrivePoseEstimator m_poseEstimator =
+      new SwerveDrivePoseEstimator(
+          m_kinematics,
+          new Rotation2d((Math.toRadians(m_gyro.getAngle()))),
+          new SwerveModulePosition[] {
+      new SwerveModulePosition(0, new Rotation2d()),
+      new SwerveModulePosition(0, new Rotation2d()),
+      new SwerveModulePosition(0, new Rotation2d()),
+      new SwerveModulePosition(0, new Rotation2d())
+      },
+          new Pose2d(),
+          VecBuilder.fill(0, 0, 0),
+          VecBuilder.fill(0, 0, 0));
+
   
 
   public DrivetrainSubsystemSim(DriveSimIO io) {
@@ -156,9 +177,15 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
   }
 
   @Override
+  public Pose2d getEstimatedPose() {
+    return poseEstimated;
+  }
+
+  @Override
   public void resetPose(Pose2d pose) {
     SwerveModuleState[] moduleStates = m_kinematics.toSwerveModuleStates(m_speeds);
 
+    m_gyro.update(pose.getRotation().getRadians());
     frontLeft = moduleStates[0];
     frontRight = moduleStates[1];
     backLeft = moduleStates[2];
@@ -167,9 +194,10 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
     double frontRightDistance = m_frontRightModule.getValue(frontRight.speedMetersPerSecond);
     double backLeftDistance = m_backLeftModule.getValue(backLeft.speedMetersPerSecond);
     double backRightDistance = m_backRightModule.getValue(backRight.speedMetersPerSecond);
+    
     m_rotationRadians = m_gyro.getGyroValueAdded(m_speeds.omegaRadiansPerSecond);
     // update gyro and distance
-    m_odometry.resetPosition(new Rotation2d(m_rotationRadians),
+    m_odometry.resetPosition(pose.getRotation(),
     new SwerveModulePosition[] {
       new SwerveModulePosition(frontLeftDistance, frontLeft.angle),
       new SwerveModulePosition(frontRightDistance, frontRight.angle),
@@ -185,8 +213,14 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
     double squared  = x + y;
     return Math.sqrt(squared);
   }
+
   public ChassisSpeeds getRobotRelativeSpeeds() {
     return m_speeds;
+  }
+
+  @Override 
+  public void updateVision(Pose3d pose) {
+    m_poseEstimator.addVisionMeasurement(pose.toPose2d(), Timer.getFPGATimestamp());
   }
 
   @Override
@@ -204,7 +238,6 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
   public void setDisabled() {
     m_speeds = new ChassisSpeeds(0, 0 , 0);
   }
-
 
   @Override
   public void periodic() {
@@ -231,6 +264,14 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
       new SwerveModulePosition(backRightDistance, backRight.angle)
       });
 
+
+      m_poseEstimator.update(new Rotation2d(m_rotationRadians), new SwerveModulePosition[] {
+      new SwerveModulePosition(frontLeftDistance, frontLeft.angle),
+      new SwerveModulePosition(frontRightDistance, frontRight.angle),
+      new SwerveModulePosition(backLeftDistance, backLeft.angle),
+      new SwerveModulePosition(backRightDistance, backRight.angle)
+      });
+
     publisher.set(new SwerveModuleState[] {
       frontLeft,
       frontRight,
@@ -238,5 +279,7 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
       backRight
     });
     m_fieldSwerve.setRobotPose(m_pose); 
+    poseEstimated = m_poseEstimator.getEstimatedPosition();
+    Logger.recordOutput("estimated pose", poseEstimated);
   }
 }

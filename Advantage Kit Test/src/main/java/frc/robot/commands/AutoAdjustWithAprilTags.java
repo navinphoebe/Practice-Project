@@ -4,8 +4,12 @@
 
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.DrivetrainState;
 import frc.robot.Vision;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -30,11 +34,14 @@ public class AutoAdjustWithAprilTags extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_vision.hasGoalTarget()) {
-      double ty = m_vision.getGoalDistance();
+    if (RobotContainer.DRIVETRAIN_STATE == DrivetrainState.ROBOT_ALIGN) {
+      double ty = m_vision.getGoalDistance(true);
       targetAngle = m_shooter.getShooterAngleMapDown(ty);
+      Logger.recordOutput("default", targetAngle);
+      if ((Math.abs((targetAngle - m_shooter.getAngle2()) % 360)) > 2) {
       double sign = calculateNegativeOrPositive();
       m_shooter.changeAngle2(sign);
+      }
     }
   }
 
@@ -47,7 +54,7 @@ public class AutoAdjustWithAprilTags extends Command {
     m_shooterAngle += 360;
     m_shooterAngle = m_shooterAngle % 360;
     m_shooter.setAngle2(m_shooterAngle);
-    boolean greater = m_shooterTarget - m_shooterAngle > 0 && m_shooterTarget - m_shooterAngle < 180;
+    boolean greater = (m_shooterTarget - m_shooterAngle > 0 && m_shooterTarget - m_shooterAngle < 180) || m_shooterTarget - m_shooterAngle < -180;
     boolean equal = m_shooterTarget - m_shooterAngle == 0;
     if (greater ) {
       return 1;
@@ -65,6 +72,6 @@ public class AutoAdjustWithAprilTags extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return ((targetAngle - m_shooter.getAngle2()) % 360 == 0);
+    return false;
   }
 }
