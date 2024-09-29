@@ -5,14 +5,13 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.FlywheelSubystemSim;
+import frc.robot.Constants;
+import frc.robot.subsystems.flywheel.FlywheelSubystem;
 
-public class SetMotorSpeed extends Command {
-  /** Creates a new SetMotorSpeed. */
-  private FlywheelSubystemSim m_flywheel;
-  private double m_speed;
-  public SetMotorSpeed(FlywheelSubystemSim flywheel, double speed) {
-    m_speed = speed;
+public class StartFlywheelCommand extends Command {
+  /** Creates a new StartFlywheelCommand. */
+  private FlywheelSubystem m_flywheel;
+  public StartFlywheelCommand(FlywheelSubystem flywheel) {
     m_flywheel = flywheel;
     addRequirements(m_flywheel);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -24,13 +23,16 @@ public class SetMotorSpeed extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    m_flywheel.setPowerManually(m_speed);
+  public void execute() { 
+    System.out.println("execute command flywheel");
+    m_flywheel.setVelocity(Constants.TARGET_RPM);
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_flywheel.stop();
+  }
 
   // Returns true when the command should end.
   @Override

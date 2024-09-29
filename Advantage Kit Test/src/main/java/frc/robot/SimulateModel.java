@@ -15,11 +15,10 @@ public class SimulateModel {
         m_jointArea = jointArea;
     }
 
-    public double[] getJointDegrees(double degrees, double[] jointArea) {
+    public void getJointDegrees(double degrees, double[] jointArea) {
         double x = m_origin[0] + m_armLength * Math.cos(Math.toRadians(degrees * -1));
         double z = m_origin[2] + m_armLength * Math.sin(Math.toRadians(degrees * -1));
         jointArea[0] = x;
         jointArea[2] = z;
-        return jointArea;
     }
 }

@@ -10,15 +10,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.RobotContainer.DrivetrainState;
+import frc.robot.RobotContainer.PickupState;
 import frc.robot.Vision;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class AutoAdjustWithAprilTags extends Command {
+public class ShooterDefaultCommand extends Command {
   /** Creates a new AutoAdjustWithAprilTags. */
   private ShooterSubsystem m_shooter;
   private Vision m_vision;
   private double targetAngle;
-  public AutoAdjustWithAprilTags(Vision vision, ShooterSubsystem shooter) {
+  public ShooterDefaultCommand(Vision vision, ShooterSubsystem shooter) {
     m_shooter = shooter;
     m_vision = vision;
     addRequirements(m_shooter);
@@ -34,7 +35,7 @@ public class AutoAdjustWithAprilTags extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (RobotContainer.DRIVETRAIN_STATE == DrivetrainState.ROBOT_ALIGN) {
+    /* if (RobotContainer.DRIVETRAIN_STATE == DrivetrainState.ROBOT_ALIGN && RobotContainer.PICKUP_STATE == PickupState.HAS_NOTE) {
       double ty = m_vision.getGoalDistance(true);
       targetAngle = m_shooter.getShooterAngleMapDown(ty);
       Logger.recordOutput("default", targetAngle);
@@ -42,7 +43,13 @@ public class AutoAdjustWithAprilTags extends Command {
       double sign = calculateNegativeOrPositive();
       m_shooter.changeAngle2(sign);
       }
-    }
+    } */
+    targetAngle = m_shooter.getTargetAngle();
+    Logger.recordOutput("default", targetAngle);
+      if ((Math.abs((targetAngle - m_shooter.getAngle2()) % 360)) > 2) {
+      double sign = calculateNegativeOrPositive();
+      m_shooter.changeAngle2(sign);
+      }
   }
 
   public double calculateNegativeOrPositive() {

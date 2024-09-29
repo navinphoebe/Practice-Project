@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.RobotContainer.ArmState;
 import frc.robot.RobotContainer.DrivetrainState;
 import frc.robot.Vision;
 import frc.robot.subsystems.Drivetrain;
@@ -64,7 +65,7 @@ public class DrivetrainDefaultCommand extends Command {
     m_drivetrain.drive(_chassisSpeeds);
 
     Logger.recordOutput("is target", m_vision.hasGoalTarget());
-    if (Math.abs(m_vision.getAlignDegrees(true)) > 8 && RobotContainer.DRIVETRAIN_STATE == DrivetrainState.ROBOT_ALIGN) {
+    if (Math.abs(m_vision.getAlignDegrees(true)) > 8 && RobotContainer.ARM_STATE == ArmState.STAGE_ALIGN && RobotContainer.PICKUP_STATE == RobotContainer.PickupState.HAS_NOTE) {
       m_target = m_vision.getAlignDegrees(true);
       Pose2d pose = m_drivetrain.getPose();
       Logger.recordOutput("align degrees", m_target);

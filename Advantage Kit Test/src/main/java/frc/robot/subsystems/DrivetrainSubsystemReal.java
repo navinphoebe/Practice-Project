@@ -40,6 +40,7 @@ import frc.robot.Robot;
 import static frc.robot.subsystems.DrivetrainSubsystemConstants.*;
 
 import java.io.Console;
+import java.util.ArrayList;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -321,5 +322,10 @@ public class DrivetrainSubsystemReal extends SubsystemBase implements Drivetrain
   @Override
   public Pose2d getEstimatedPose() {
     return new Pose2d();
+  }
+
+  @Override
+  public int pointInBox(ArrayList<Pose3d> name) {
+    return 1;
   }
 }

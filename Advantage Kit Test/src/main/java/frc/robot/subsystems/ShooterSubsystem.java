@@ -20,8 +20,11 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.SimulateModel;
+import frc.robot.Vision;
 import frc.robot.commands.MoveShooterToPosition;
+
 
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -31,11 +34,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public Pose3d pose = new Pose3d(0.15, 0, 10, new Rotation3d(Math.toRadians(0), Math.toRadians(angle2), Math.toRadians(-0)));
   private InterpolatingDoubleTreeMap shooterAngleMapDown = new InterpolatingDoubleTreeMap();
+  private Vision m_vision;
   
   public ShooterSubsystem() {
     populateShooterAngleMapDown();
   }
 
+  public void addVision(Vision vision) {
+    m_vision = vision;
+  }
   public void changeAngle2(double num){
     angle2 += num;
   }
@@ -67,6 +74,19 @@ public class ShooterSubsystem extends SubsystemBase {
   public double getShooterAngleMapDown(double distance){
     double angle = shooterAngleMapDown.get(Units.metersToInches(distance));
     return -angle + 55;
+}
+
+public double getTargetAngle() {
+   if (RobotContainer.PICKUP_STATE == RobotContainer.PickupState.HAS_NOTE) {
+    if (RobotContainer.ARM_STATE == RobotContainer.ArmState.AMP_STATE) {
+      return -40;
+    } else {
+      double ty = m_vision.getGoalDistance(true);
+      return getShooterAngleMapDown(ty);
+    }
+   } 
+  return 50;
+  
 }
 
 }

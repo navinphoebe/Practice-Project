@@ -16,6 +16,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.RobotContainer.ArmState;
+import frc.robot.RobotContainer.DrivetrainState;
+import frc.robot.RobotContainer.PickupState;
+import frc.robot.util.NoteVisualizer;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -102,13 +107,19 @@ public class Robot extends LoggedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     m_robotContainer.m_vision.periodic();
+    NoteVisualizer.showAutoNotes();
+    NoteVisualizer.showHeldNotes();
+    if (NoteVisualizer.hasNote()) {
+      RobotContainer.PICKUP_STATE = PickupState.HAS_NOTE;
+    } else {
+      RobotContainer.PICKUP_STATE = PickupState.NO_NOTE;
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
     m_robotContainer.m_drivetrain.setDisabled();
-    m_robotContainer.m_flywheel.stopPower();
   }
 
   @Override
@@ -118,12 +129,12 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     var alliance = DriverStation.getAlliance();
-     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue){
+     /*if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue){
       m_robotContainer.m_drivetrain.resetPose(new Pose2d(1.357, 5.554, new Rotation2d()));
     } else {
       m_robotContainer.m_drivetrain.resetPose(new Pose2d(15.16, 5.554, new Rotation2d()));
-    } 
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    } */
+    m_autonomousCommand = m_robotContainer.goToTargetPosition(1.85, 7.78, -90);
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -148,7 +159,14 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    if (ArmState.AMP_STATE == RobotContainer.ARM_STATE) {
+      m_robotContainer.autoPosition = m_robotContainer.ampAuto;
+    } else if (ArmState.STAGE_ALIGN == RobotContainer.ARM_STATE) {
+      m_robotContainer.autoPosition = m_robotContainer.speakerAuto;
+    }
+    m_robotContainer.m_driverController.button(4).whileTrue(m_robotContainer.goToAutoTargetPosition());
+  }
 
   @Override
   public void testInit() {
