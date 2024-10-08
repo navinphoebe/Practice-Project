@@ -4,10 +4,14 @@
 
 package frc.robot.subsystems.flywheel;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public interface FlywheelSubystem extends Subsystem {
 
+    public TalonFX getTalonFX();
+    
     public void setVelocity(double velocityRPM);
 
     public void stop();

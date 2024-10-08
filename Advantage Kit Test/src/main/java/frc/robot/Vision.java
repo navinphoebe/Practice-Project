@@ -69,16 +69,16 @@ public class Vision {
         PhotonCamera camera = new PhotonCamera("cameraName");
 
         // The simulation of this camera. Its values used in real robot code will be updated.
+        cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(80.3));
         cameraSim = new PhotonCameraSim(camera, cameraProp);
-
         // Add this vision target to the vision system simulation to make it visible
         visionSim.addVisionTargets(visionTarget);
 
         // Our camera is mounted 0.1 meters forward and 0.5 meters up from the robot pose,
         // (Robot pose is considered the center of rotation at the floor level, or Z = 0)
-        Translation3d robotToCameraTrl = new Translation3d(0.1, 0, 0.5);
+        Translation3d robotToCameraTrl = new Translation3d(-.311, .140, 0.298);
         // and pitched 15 degrees up.
-        Rotation3d robotToCameraRot = new Rotation3d(0, Math.toRadians(-15), Math.PI);
+        Rotation3d robotToCameraRot = new Rotation3d(0, Math.toRadians(-20), Math.PI);
         robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
         cameraToRobot = robotToCamera.inverse();
 
@@ -113,6 +113,7 @@ public class Vision {
         var result = cameraSim.getCamera().getLatestResult();
         if (result.hasTargets()){
         System.out.println("target!" + result.getBestTarget().getFiducialId());
+        Logger.recordOutput("Target", result.getBestTarget().getFiducialId());
         var target = result.getBestTarget();
         Optional<Pose3d> aprilTagLayout = tagLayout.getTagPose(target.getFiducialId());
         Pose3d aprilLayout = new Pose3d();

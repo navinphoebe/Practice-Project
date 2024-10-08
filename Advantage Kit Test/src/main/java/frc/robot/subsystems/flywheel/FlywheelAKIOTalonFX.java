@@ -13,6 +13,8 @@
 
 package frc.robot.subsystems.flywheel;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -22,13 +24,23 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
+
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Robot;
 
 public class FlywheelAKIOTalonFX implements FlywheelAkIO {
   private static final double GEAR_RATIO = 1.5;
 
   private final TalonFX leader = new TalonFX(0);
   private final TalonFX follower = new TalonFX(1);
+
+   private static final double kGearRatio = 10.0;
+  private final DCMotorSim m_motorSimModel =
+    new DCMotorSim(DCMotor.getKrakenX60Foc(1), kGearRatio, 0.001);
 
   private final StatusSignal<Double> leaderPosition = leader.getPosition();
   private final StatusSignal<Double> leaderVelocity = leader.getVelocity();
@@ -56,11 +68,33 @@ public class FlywheelAKIOTalonFX implements FlywheelAkIO {
     BaseStatusSignal.refreshAll(
         leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
     inputs.positionRad = Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / GEAR_RATIO;
-    inputs.velocityRadPerSec =
-        Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / GEAR_RATIO;
-    inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
-    inputs.currentAmps =
-        new double[] {leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble()};
+    //inputs.velocityRadPerSec = Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / GEAR_RATIO;
+    //inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
+    inputs.currentAmps = new double[] { leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble() };
+
+    if (Robot.isSimulation()) {
+      TalonFXSimState talonFXSim = leader.getSimState();
+
+      // set the supply voltage of the TalonFX
+      talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+      // get the motor voltage of the TalonFX
+      var motorVoltage = talonFXSim.getMotorVoltage();
+      // use the motor voltage to calculate new position and velocity
+      // using WPILib's DCMotorSim class for physics simulation
+      m_motorSimModel.setInputVoltage(motorVoltage);
+      m_motorSimModel.update(0.020); // assume 20 ms loop time
+
+      // apply the new rotor position and velocity to the TalonFX;
+      // note that this is rotor position/velocity (before gear ratio), but
+      // DCMotorSim returns mechanism position/velocity (after gear ratio)
+      talonFXSim.setRawRotorPosition(
+          kGearRatio * m_motorSimModel.getAngularPositionRotations());
+      talonFXSim.setRotorVelocity(
+          kGearRatio * Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec()));
+
+    }
+
   }
 
   @Override

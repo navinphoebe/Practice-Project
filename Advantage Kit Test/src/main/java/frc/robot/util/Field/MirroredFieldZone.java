@@ -8,7 +8,7 @@ package frc.robot.util.Field;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.util.field.FieldZones.FieldMacroZone;
+import frc.robot.util.Field.FieldZones.FieldMacroZone;
 
 public class MirroredFieldZone {
     private ArrayList<MirroredSubzone> mirroredSubzones = new ArrayList<MirroredSubzone>();

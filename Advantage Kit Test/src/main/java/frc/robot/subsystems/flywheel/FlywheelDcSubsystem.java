@@ -38,4 +38,9 @@ public class FlywheelDcSubsystem extends SubsystemBase implements FlywheelSubyst
     Logger.recordOutput("Velocity RPM", m_motor.getVelocityRPM());
     Logger.recordOutput("Voltage", m_motor.getVoltage());
   }
+
+  @Override
+  public TalonFX getTalonFX() {
+    return null;
+  }
 }

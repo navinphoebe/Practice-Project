@@ -24,10 +24,11 @@ import frc.robot.subsystems.DrivetrainSubsystemSim;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.flywheel.FlywheelAKIOFS;
+import frc.robot.subsystems.flywheel.FlywheelAKIOTalonFX;
 import frc.robot.subsystems.flywheel.FlywheelAkIO;
-import frc.robot.subsystems.flywheel.FlywheelAkIOCtreSim;
 import frc.robot.subsystems.flywheel.FlywheelAkIODcSim;
 import frc.robot.subsystems.flywheel.FlywheelAkSubsystem;
+import frc.robot.subsystems.flywheel.FlywheelCtreSubsystem;
 import frc.robot.subsystems.flywheel.FlywheelDcSubsystem;
 import frc.robot.subsystems.flywheel.FlywheelSubystem;
 import frc.robot.util.NoteVisualizer;
@@ -131,7 +132,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     m_vision = new Vision(m_drivetrain);
     // NoteVisualizer.setRobotPoseSupplier(this::getPose);
-    FlywheelAkIO io = new FlywheelAkIOCtreSim();
+    FlywheelAkIO io = new FlywheelAKIOTalonFX();
      m_flywheel = new FlywheelAkSubsystem(io);
     DRIVETRAIN_STATE = DrivetrainState.FREEHAND;
     NoteVisualizer.setPoseSuppliers(this::getPose, this::getAngle2, this::getPoseB);
@@ -206,11 +207,11 @@ public class RobotContainer {
     m_arm.setDefaultCommand(new ArmDefaultCommand(m_arm));
     // m_driverController.x().whileTrue((new TurnToAutoAlign(m_drivetrain,
     // m_vision)));
-    /* m_driverController.button(4).whileTrue(goToAutoTargetPosition());
-    m_driverController.button(1).whileTrue(new InstantCommand(() -> getPickUpNote()));
-    m_driverController.button(2).onTrue(getShooterCommand().alongWith(new InstantCommand(() -> System.out.println("THIS WORKS"))));
-    m_driverController.button(3).whileTrue((new InstantCommand(() -> toggleSpeakerandAmp()))); */
-    m_driverController.x().whileTrue(new StartFlywheelCommand(m_flywheel));
+    m_driverController.x().whileTrue(goToAutoTargetPosition());
+    m_driverController.y().whileTrue(new InstantCommand(() -> getPickUpNote()));
+    m_driverController.a().onTrue(getShooterCommand().alongWith(new InstantCommand(() -> System.out.println("THIS WORKS"))));
+    m_driverController.b().whileTrue((new InstantCommand(() -> toggleSpeakerandAmp()))); 
+    m_driverController.pov(0).whileTrue(new StartFlywheelCommand(m_flywheel));
 
 
 

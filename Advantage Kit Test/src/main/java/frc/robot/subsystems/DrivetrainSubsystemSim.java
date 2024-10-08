@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.GyroSim;
 import frc.robot.SwerveModuleSim;
+import frc.robot.util.Field.FieldSubzone;
+import frc.robot.util.Field.FieldZone;
+import frc.robot.util.Field.FieldZones;
 
 public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain {
   /** Creates a new DrivetrainSubsystem. */
@@ -66,6 +70,8 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
   public final SwerveModuleSim m_frontRightModule = new SwerveModuleSim();
   public final SwerveModuleSim m_backLeftModule = new SwerveModuleSim();
   public final SwerveModuleSim m_backRightModule = new SwerveModuleSim();
+  public FieldZones m_fieldZones = new FieldZones();
+  public static FieldSubzone m_currentZone = new FieldSubzone("", 0, 0, 0, 0);
   public ChassisSpeeds m_speeds = new ChassisSpeeds(0, 0, 0);
   public Pose2d m_pose;
   public double m_x;
@@ -283,6 +289,12 @@ public class DrivetrainSubsystemSim extends SubsystemBase implements Drivetrain 
     poseEstimated = m_poseEstimator.getEstimatedPosition();
     Logger.recordOutput("estimated pose", poseEstimated);
     Rectangle.updateOrigin(getPose());
+    updateFieldSection(new Point2D.Double(m_pose.getX(), m_pose.getY()));
+  }
+
+  public void updateFieldSection(Point2D point) {
+    m_currentZone = m_fieldZones.getPointFieldZone(point);
+    Logger.recordOutput("current zone", m_currentZone.getName());
   }
 
   @Override

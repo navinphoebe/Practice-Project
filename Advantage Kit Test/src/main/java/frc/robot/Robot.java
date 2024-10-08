@@ -11,9 +11,15 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.sim.TalonFXSimState;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -32,6 +38,10 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
+  private static final double kGearRatio = 10.0;
+private final DCMotorSim m_motorSimModel =
+   new DCMotorSim(DCMotor.getKrakenX60Foc(1), kGearRatio, 0.001);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -184,6 +194,32 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {
+  public void simulationPeriodic() { 
+  /* TalonFXSimState talonFXSim = m_robotContainer.m_flywheel.getTalonFX().getSimState();
+  //Logger.recordOutput("Velocity RPM", m_motorSimModel.getAngularVelocityRPM());
+  //Logger.recordOutput("Voltage", talonFXSim.getMotorVoltage());
+
+   // set the supply voltage of the TalonFX
+   talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+   // get the motor voltage of the TalonFX
+   var motorVoltage = talonFXSim.getMotorVoltage();
+    
+   // use the motor voltage to calculate new position and velocity
+   // using WPILib's DCMotorSim class for physics simulation
+   m_motorSimModel.setInputVoltage(motorVoltage);
+   m_motorSimModel.update(0.020); // assume 20 ms loop time
+
+   // apply the new rotor position and velocity to the TalonFX;
+   // note that this is rotor position/velocity (before gear ratio), but
+   // DCMotorSim returns mechanism position/velocity (after gear ratio)
+   talonFXSim.setRawRotorPosition(
+      kGearRatio * m_motorSimModel.getAngularPositionRotations()
+   );
+   talonFXSim.setRotorVelocity(
+      kGearRatio * Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec())
+   ); */
+
+   
   }
 }

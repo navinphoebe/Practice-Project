@@ -6,8 +6,10 @@ package frc.robot.subsystems.flywheel;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -23,19 +25,34 @@ public class FlywheelCtreSubsystem extends SubsystemBase implements FlywheelSuby
 
   @Override 
   public void stop() {
-    //m_motor.stop();
+    m_motor.stopMotor();
   }
 
   @Override 
   public void setVelocity(double velocityRPM) {
-   // m_motor.setVelocity(velocityRPM);
+  var velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
+   m_motor.setControl(
+        new VelocityVoltage(
+            Units.radiansToRotations(velocityRadPerSec),
+            0.0,
+            true,
+            0,
+            0,
+            false,
+            false,
+            false));
   }
 
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    ////Logger.recordOutput("Velocity RPM", m_motor.getVelocityRPM());
-   // Logger.recordOutput("Voltage", m_motor.getVoltage());
+   ////Logger.recordOutput("Velocity RPM", m_motor.getVelocity().getValueAsDouble() / 60);
+   //Logger.recordOutput("Voltage", m_motor.getSupplyVoltage().getValueAsDouble());
+  }
+
+  @Override
+  public TalonFX getTalonFX() {
+    return m_motor;
   }
 }

@@ -110,4 +110,9 @@ public class FlywheelAkSubsystem extends SubsystemBase implements FlywheelSubyst
     // Log flywheel setpoint
     Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
   }
+
+  @Override
+  public TalonFX getTalonFX() {
+    return null;
+  }
 }

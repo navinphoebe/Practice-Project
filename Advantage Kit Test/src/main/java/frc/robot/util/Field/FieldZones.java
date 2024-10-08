@@ -169,7 +169,7 @@ public class FieldZones {
         fieldZones.add(blueLoadingZone);
         fieldZones.add(redLoadingZone);
 
-        // Neutral zone.
+        // Neutral zone. Changed Alliance Invalid to Blue
         neutralZone = new FieldZone(Alliance.Blue, FieldMacroZone.NEUTRAL, "Neutral Zone", neutralZoneNarrowArea);
         neutralZone.addSubzone(neutralZoneNorthernArea);
         neutralZone.addSubzone(neutralZoneSouthernArea);
@@ -189,7 +189,7 @@ public class FieldZones {
         fieldZones.add(blueChargeStation);
         fieldZones.add(redChargeStation);
 
-        // Create the none zone.
+        // Create the none zone. Changed Invalid to blue
         noneZone = new FieldZone(Alliance.Blue, FieldMacroZone.NONE, "None", noneSubzone);
         noneZone.generateBoundingBox();
         noneSubzone.setFieldZone(noneZone);
