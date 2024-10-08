@@ -93,6 +93,8 @@ public class FlywheelAKIOTalonFX implements FlywheelAkIO {
       talonFXSim.setRotorVelocity(
           kGearRatio * Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec()));
 
+    inputs.velocityRadPerSec = m_motorSimModel.getAngularVelocityRPM();
+    inputs.appliedVolts = talonFXSim.getMotorVoltage();
     }
 
   }
