@@ -30,6 +30,7 @@ public final class Constants {
   public static final Mode currentMode = Mode.SIM;
 public static final double ROBOT_SIZE_METERS = 0;
 public static final double TARGET_RPM = 96;
+public static final double DEADBAND_RPM = 5;
 
   public static enum Mode {
     /** Running on a real robot. */

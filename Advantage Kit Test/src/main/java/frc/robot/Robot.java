@@ -39,7 +39,7 @@ public class Robot extends LoggedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private static final double kGearRatio = 10.0;
+  private static final double kGearRatio = 1.5;
 private final DCMotorSim m_motorSimModel =
    new DCMotorSim(DCMotor.getKrakenX60Foc(1), kGearRatio, 0.001);
 
@@ -195,31 +195,5 @@ private final DCMotorSim m_motorSimModel =
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() { 
-  /* TalonFXSimState talonFXSim = m_robotContainer.m_flywheel.getTalonFX().getSimState();
-  //Logger.recordOutput("Velocity RPM", m_motorSimModel.getAngularVelocityRPM());
-  //Logger.recordOutput("Voltage", talonFXSim.getMotorVoltage());
-
-   // set the supply voltage of the TalonFX
-   talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
-
-   // get the motor voltage of the TalonFX
-   var motorVoltage = talonFXSim.getMotorVoltage();
-    
-   // use the motor voltage to calculate new position and velocity
-   // using WPILib's DCMotorSim class for physics simulation
-   m_motorSimModel.setInputVoltage(motorVoltage);
-   m_motorSimModel.update(0.020); // assume 20 ms loop time
-
-   // apply the new rotor position and velocity to the TalonFX;
-   // note that this is rotor position/velocity (before gear ratio), but
-   // DCMotorSim returns mechanism position/velocity (after gear ratio)
-   talonFXSim.setRawRotorPosition(
-      kGearRatio * m_motorSimModel.getAngularPositionRotations()
-   );
-   talonFXSim.setRotorVelocity(
-      kGearRatio * Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec())
-   ); */
-
-   
   }
 }

@@ -30,17 +30,18 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 public class FlywheelAKIOTalonFX implements FlywheelAkIO {
-  private static final double GEAR_RATIO = 1.5;
+  private static final double GEAR_RATIO = 1;
 
   private final TalonFX leader = new TalonFX(0);
   private final TalonFX follower = new TalonFX(1);
 
-   private static final double kGearRatio = 10.0;
+   private static final double kGearRatio = 1.5;
   private final DCMotorSim m_motorSimModel =
-    new DCMotorSim(DCMotor.getKrakenX60Foc(1), kGearRatio, 0.001);
+    new DCMotorSim(DCMotor.getNEO(1), kGearRatio, 0.001);
 
   private final StatusSignal<Double> leaderPosition = leader.getPosition();
   private final StatusSignal<Double> leaderVelocity = leader.getVelocity();
@@ -66,17 +67,18 @@ public class FlywheelAKIOTalonFX implements FlywheelAkIO {
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
     BaseStatusSignal.refreshAll(
-        leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
+        leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
     inputs.positionRad = Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / GEAR_RATIO;
-    //inputs.velocityRadPerSec = Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / GEAR_RATIO;
-    //inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
-    inputs.currentAmps = new double[] { leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble() };
-
+    inputs.velocityRPM = Units.radiansPerSecondToRotationsPerMinute(Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / GEAR_RATIO);
+    inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
+    inputs.currentAmps = new double[] {leaderCurrent.getValueAsDouble()};
+    inputs.isTarget = Math.abs(inputs.velocityRPM - Constants.TARGET_RPM) < Constants.DEADBAND_RPM;
     if (Robot.isSimulation()) {
       TalonFXSimState talonFXSim = leader.getSimState();
 
       // set the supply voltage of the TalonFX
       talonFXSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+      //talonFXSim.setSupplyVoltage(12);
 
       // get the motor voltage of the TalonFX
       var motorVoltage = talonFXSim.getMotorVoltage();
@@ -92,9 +94,6 @@ public class FlywheelAKIOTalonFX implements FlywheelAkIO {
           kGearRatio * m_motorSimModel.getAngularPositionRotations());
       talonFXSim.setRotorVelocity(
           kGearRatio * Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec()));
-
-    inputs.velocityRadPerSec = m_motorSimModel.getAngularVelocityRPM();
-    inputs.appliedVolts = talonFXSim.getMotorVoltage();
     }
 
   }
@@ -116,6 +115,7 @@ public class FlywheelAKIOTalonFX implements FlywheelAkIO {
             false,
             false,
             false));
+            Logger.recordOutput("Set Velocity", velocityRadPerSec);
   }
 
   @Override

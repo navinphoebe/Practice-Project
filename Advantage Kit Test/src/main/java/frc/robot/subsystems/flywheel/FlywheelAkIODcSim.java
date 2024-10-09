@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.Constants;
 
 public class FlywheelAkIODcSim implements FlywheelAkIO {
   private DCMotorSim sim = new DCMotorSim(DCMotor.getNEO(1), 1.5, 0.004);
@@ -38,9 +39,10 @@ public class FlywheelAkIODcSim implements FlywheelAkIO {
     sim.update(0.02);
 
     inputs.positionRad = sim.getAngularPositionRad();
-    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
+    inputs.velocityRPM = sim.getAngularVelocityRPM();
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
+    inputs.isTarget = Math.abs(inputs.velocityRPM - Constants.TARGET_RPM) < Constants.DEADBAND_RPM;
   }
 
   @Override

@@ -42,11 +42,11 @@ public class FlywheelAkSubsystem extends SubsystemBase implements FlywheelSubyst
     switch (Constants.currentMode) {
       case REAL:
       case REPLAY:
-        ffModel = new SimpleMotorFeedforward(0.1, 0.05);
+        ffModel = new SimpleMotorFeedforward(0.0, 0.00);
         io.configurePID(1.0, 0.0, 0.0);
         break;
       case SIM:
-        ffModel = new SimpleMotorFeedforward(0.0, 0.03);
+        ffModel = new SimpleMotorFeedforward(0.0, 0.022);
         io.configurePID(0.5, 0.0, 0.0);
         break;
       default:
@@ -94,21 +94,18 @@ public class FlywheelAkSubsystem extends SubsystemBase implements FlywheelSubyst
   /** Returns the current velocity in RPM. */
   @AutoLogOutput
   public double getVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
+    return inputs.velocityRPM;
   }
 
   /** Returns the current velocity in radians per second. */
   public double getCharacterizationVelocity() {
-    return inputs.velocityRadPerSec;
+    return inputs.velocityRPM;
   }
 
   @Override
   public void setVelocity(double velocityRPM) {
      var velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
     io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
-
-    // Log flywheel setpoint
-    Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
   }
 
   @Override

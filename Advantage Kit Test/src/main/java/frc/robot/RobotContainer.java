@@ -132,8 +132,8 @@ public class RobotContainer {
     // Configure the trigger bindings
     m_vision = new Vision(m_drivetrain);
     // NoteVisualizer.setRobotPoseSupplier(this::getPose);
-    FlywheelAkIO io = new FlywheelAKIOTalonFX();
-     m_flywheel = new FlywheelAkSubsystem(io);
+    FlywheelAkIO io = new FlywheelAKIOFS();
+     m_flywheel = new FlywheelCtreSubsystem();
     DRIVETRAIN_STATE = DrivetrainState.FREEHAND;
     NoteVisualizer.setPoseSuppliers(this::getPose, this::getAngle2, this::getPoseB);
     NoteVisualizer.resetAutoNotes();

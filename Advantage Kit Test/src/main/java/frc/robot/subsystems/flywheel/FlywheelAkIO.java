@@ -19,8 +19,9 @@ public interface FlywheelAkIO {
   @AutoLog
   public static class FlywheelIOInputs {
     public double positionRad = 0.0;
-    public double velocityRadPerSec = 0.0;
+    public double velocityRPM = 0.0;
     public double appliedVolts = 0.0;
+    public boolean isTarget = false;
     public double[] currentAmps = new double[] {};
   }
 
